@@ -7,7 +7,7 @@ function reverseString(str) {
 function iterationReverseSrting(str) {
   let newString = '';
   for (let i = str.length - 1; i >= 0; i--) {
-      newString += str[i];
+    newString += str[i];
   }    
   return newString;
 }
@@ -96,3 +96,235 @@ function isAdvancePalindrome(str) {
 }
 
 console.log(isAnotherPalindrome("bob"));
+
+//4.Видали дублікати з масиву
+
+const array = [1, 2, 3, 4, 4, 4, 4, 5]; //працює і з ['Anna', 'Ivan', 'Anna', 'Petro'];
+
+const uniqueArray = [...new Set(array)];
+
+console.log(uniqueArray)
+
+const arrayDublicate = [
+  {id: 1, value: 'A'},
+  {id: 2, value: 'B'},
+  {id: 3, value: 'C'},
+  {id: 2, value: 'D'},
+  {id: 3, value: 'C'},
+]  /////аналог const arr = [1, 2, 2, 3, 4, 4];
+
+const uniqueReduce = arrayDublicate.reduce((acc, item) => {
+  if (!acc.some(obj => obj.id === item.id && obj.value === item.value))  {
+    acc.push(item);
+  }
+  return acc;
+}, []);
+//const unique = arr.reduce((acc, val) => { if (!acc.includes(val)) acc.push(val); return acc; }, []);
+console.log(uniqueReduce);
+
+
+
+function getUniqueItemsById(items) {
+  return Array.from(
+    new Map(items.map(item => [item.id, item])).values()
+  );
+}
+
+// Приклад використання:
+const items = [
+  { id: 1, value: 'A' },
+  { id: 2, value: 'B' },
+  { id: 1, value: 'A' }
+];
+
+const uniqueItems = getUniqueItemsById(items);
+console.log(uniqueItems);
+
+
+//5.Знайди найчастіше слово в реченні
+
+
+const str = "Hello, world! How are you?"; //.match() — метод рядка, який шукає відповідність регулярному виразу і повертає знайдені збіги.
+//\b\w+\b/g — регулярний вираз:
+//\b — означає границю слова (початок або кінець слова).
+//\w+ — означає одне або бцільше "словесних" символів (букви, цифри або підкреслення).
+//g — глобальний прапорець, який каже "знайди всі відповідності, а не тільки першу".
+
+
+// const words = str.match(/\b\w+\b/g);
+
+// console.log(words); // ["Hello", "world", "How", "are", "you"]
+
+
+// let sentence = "яблуко увуву 4343 5656 2323 2323 2323 2323 груша яблуко слива яблуко груша";
+// console.log(sentence.split(' '));  ['яблуко', 'груша', 'яблуко', 'слива', 'яблуко', 'груша'] розбиває рядок по кожному пробілу.
+// console.log(sentence.split()) ['яблуко груша яблуко слива яблуко груша'] Тут .split() не знає, де саме розділяти, тому повертає весь рядок як один елемент масиву:
+
+// console.log("слива груша яблуко".split(' '))
+
+// let words = sentence.split(" ");
+// let counts = {};
+// for (let word of words) {
+//   if (!counts[word]) {
+//     counts[word] = 1;
+//   } else {
+//    counts[word] += 1;
+//   }
+// }
+
+// console.log(counts)
+
+let sentence = "яблуко увуву 4343 5656 2323 2323 2323 2323 груша яблуко слива яблуко груша";
+let words = sentence.split(" ");
+function counterWords(sentence) {
+  let words = sentence.split(" ");
+  let counts = {};
+  for (let word of words) { //проходить по кожному елементу в масиві words
+
+
+    word = word.toLowerCase();
+    word = word.replace(/[.,!?()":;«»“”„\[\]{}\-]/g, "")
+    word = word.replace(/'/g, "’");
+    if (/^\d+$/.test(word) || word === "") {     //\d - Будь-яка цифра (0-9)
+      continue;
+    }
+    if (!counts[word]) {
+      counts[word] = 1;
+    } else {
+    counts[word] += 1;    
+    }
+    //counts[word] = (counts[word] || 0) + 1;
+    // totalWords++;
+  }
+
+  let sortedSentence = Object.entries(counts)
+    .sort((a, b)=> b[1] - a[1])
+    .slice(0, 3);
+
+  let [mostFrequent, maxCount] = sortedSentence[0] || ['', 0];
+
+  let totalWords = Object.values(counts).reduce((sum, count) => sum + count, 0);
+  let percentage = (maxCount / totalWords) * 100;
+  let top3Percentage = sortedSentence.map(([word, count]) => ({
+    word,
+    count,
+    percentage: ((count / totalWords) * 100).toFixed(2) + '%'
+  }));
+  return { top3: top3Percentage, word: mostFrequent, count: maxCount, percentage: percentage.toFixed(2) + '%' };
+}
+
+let f = counterWords(sentence)
+console.log(words)
+
+//6. Розверни масив без reverse()
+
+function withoutReverse(array) {
+  let newArray = [];
+  for (let i = array.length - 1; i >= 0; i--) {
+    newArray.push(array[i])// newArray += array[i]; це для str  конкатенує елементи як рядки
+  }
+  return newArray;
+}
+
+let noReverseArray = ["apple", "banana", "cherry"]; //[1, 2, 3, 4, 5];
+let cha = withoutReverse(noReverseArray)
+console.log(cha)
+
+//розгорнення без створення нового
+
+function reverseInPlace(arr) {
+  for (i = 0; i < Math.floor(arr.length / 2); i++) {
+    let temp = arr[i];
+    arr[i] = arr[arr.length - 1 - i];
+    arr[arr.length - 1 - i] = temp;
+  } 
+  return arr;
+}
+let arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+console.log(reverseInPlace(arr))
+
+
+//6. Напиши власну реалізацію map()
+
+
+function iterationMap(array, callback) {
+  const result = [];
+  for (let i = 0; i < array.length; i++) {
+    result.push(callback(array[i], i, array));
+  }
+  return result
+}
+
+
+function ForOfMap(arr, callback) {
+  const result = [];
+  let index = 0;
+  for (const item of arr) {
+    result.push(callback(item, index, arr));
+    index++;
+  }
+  return result
+}
+
+function ForEachMap (arr, callback) {
+  const result = [];
+  arr.forEach((item, index) => {
+    result.push(callback(index, item, arr));
+  });
+  return result;
+}
+
+
+function WhileMap(arr, callback) {
+  const result = [];
+  let index = 0;
+  while (index < arr.length) {
+    result.push(callback(arr[index], index, arr));
+    index++;
+  }
+  return result;
+}
+
+function ReduceMap (arr, callback) {
+  return arr.reduce ((acc, item, index, array) => {
+    acc.push(callback(item, index, array));
+    return acc;
+  }, []);
+}
+
+function* mapGenerator(arr, callback) {
+  for (let i = 0; i < arr.length; i++) {
+    yield callback(arr[i], i, arr);
+  }
+}
+
+const numbers = [1, 2, 3, 45];
+const squared = ReduceMap(numbers, x => x * x);
+console.log(squared); // [1, 4, 9, 16]
+
+//8. Реалізуй функцію debounce(fn, delay)
+
+function debounce(fn, delay) {
+  let timer;
+
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+    fn.apply(this, args);
+    }, delay); 
+  };
+}
+
+// Звичайна функція, яка щось робить
+function handleClick() {
+    console.log('Клік по кнопці!');
+}
+
+// Обгортаємо її через debounce
+const debouncedClick = debounce(handleClick, 2000);
+
+// Вішаємо на кнопку
+document.getElementById('myDebounceButton').addEventListener('click', debouncedClick);
+
+
+//9. Реалізуй функцію debounce(fn, delay)
