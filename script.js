@@ -302,7 +302,7 @@ const numbers = [1, 2, 3, 45];
 const squared = ReduceMap(numbers, x => x * x);
 console.log(squared); // [1, 4, 9, 16]
 
-//8. Реалізуй функцію debounce(fn, delay)
+/////8. Реалізуй функцію debounce(fn, delay)
 
 function debounce(fn, delay) {
   let timer;
@@ -327,4 +327,132 @@ const debouncedClick = debounce(handleClick, 2000);
 document.getElementById('myDebounceButton').addEventListener('click', debouncedClick);
 
 
-//9. Реалізуй функцію debounce(fn, delay)
+//////9. Реалізуй throttle(fn, delay)
+
+
+function throttle(fn, delay) {
+  let lastCall = 0;
+  return function() {
+    const now = Date.now();
+    if (now - lastCall > delay) {
+      fn();
+      lastCall = now;
+    }
+  }    
+}
+
+const log = () => console.log('Scrolled');
+
+window.addEventListener('scroll', throttle(log, 1000));
+
+//10.Зроби функцію глибокого копіювання об’єкта
+
+function deepCopy(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(deepCopy);  
+  }
+
+  const result = {};
+  for (const key in obj) {
+    result[key] = deepCopy(obj[key]);
+  }
+  
+  return result;
+}
+
+const itemsDeep = [
+  { id: 1, value: 'A', place: {city: 'Ass'} },
+  { id: 2, value: 'B', place: {city: 'Bss'} },
+  { id: 3, value: 'C', place: {city: 'Css'} }
+];
+
+const actionDeep = deepCopy(itemsDeep)
+
+// console.log(JSON.stringify(actionDeep, null, 2));
+// actionDeep[2].place.city = "Львів";
+// console.log(actionDeep)
+
+// console.log('Original:', itemsDeep[2].place.city); // ➜ 'Css'
+// console.log('Copy:', actionDeep[2].place.city); 
+
+
+//11.Реалізуй замикання для лічильника (counter())
+
+function Counter() {
+  let saved = localStorage.getItem('count');
+  let count = saved ? parseInt(saved) : 0;
+
+  function updateStorage() {
+    localStorage.setItem('count', count);
+  }
+  return {
+    inc: function() {
+      count++;
+      updateStorage();
+      return count;
+    },
+    dec: function() {
+      count--;
+      updateStorage();
+      return count;
+    },
+    value: function() {
+      return count;
+    },    
+    reset() {
+      count = 0;
+      updateStorage();
+      return count;
+    }
+  }
+}
+const counter = Counter();
+const display = document.getElementById('display');
+display.textContent = counter.value();
+document.getElementById('minus').addEventListener('click', () =>{
+  display.textContent = counter.dec();
+});
+
+document.getElementById('plus').addEventListener('click', () =>{
+  display.textContent = counter.inc();
+});
+
+
+//12.Зроби сортування масиву об’єктів по полю
+
+const users = [
+  { name: 'Katya', age: 25 },
+  { name: 'Bohdan', age: 30 },
+  { name: 'Anna', age: 20 }
+];
+// ascending - зростання, descending - спадання
+function sortByField(arr, field, order = 'asc') {
+  return arr.sort((a, b) => {
+
+    if (typeof a[field] === 'string' && typeof b[field] === 'string') {
+      return order === 'ascending' 
+        ? a[field].localeCompare(b[field]) 
+        : b[field].localeCompare(a[field]);
+    }
+    return order === 'ascending' 
+      ? a[field] - b[field] 
+      : b[field]- a[field];  
+  });
+}
+
+const www = sortByField(users, 'name', 'ascending')
+
+console.log(www)
+
+// const field = ['age', 'name'];
+// const obj = { age: 25, name: 'Anna' };
+
+// console.log(obj.age);   
+// field.forEach(key => {
+//   console.log(key, obj[key]);
+// });  
+// console.log(obj.field);   
