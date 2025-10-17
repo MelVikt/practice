@@ -1,7 +1,7 @@
 ///1.Створи функцію reverseString(str)
 
 function reverseString(str) {
-    return str.split('').reverse().join('')
+  return str.split('').reverse().join('')
 }
 
 function iterationReverseSrting(str) {
@@ -40,7 +40,7 @@ console.log(stringCountVowels("Привіт, як справи?"));
 //2.1.Порахуй кількість приголосних у рядку
 
 const RegExCountConsonants = str => 
-  (str.match (/[a-zа-яіїєґ]/gi)?.filter(letter => !/[aeiouаєеиіїоуюя]/i.test(letter))).length // without .length - []
+  (str.match (/zа-яії[a-єґ]/gi)?.filter(letter => !/[aeiouаєеиіїоуюя]/i.test(letter))).length // without .length - []
 
 
 function stringCountConsonants(str) {
