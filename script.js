@@ -134,7 +134,7 @@ function getUniqueItemsById(items) {
 const items = [
   { id: 1, value: 'A' },
   { id: 2, value: 'B' },
-  { id: 1, value: 'A' }
+  { id: 1, value: 'C' }
 ];
 
 const uniqueItems = getUniqueItemsById(items);
@@ -151,9 +151,9 @@ const str = "Hello, world! How are you?"; //.match() — метод рядка, 
 //g — глобальний прапорець, який каже "знайди всі відповідності, а не тільки першу".
 
 
-// const words = str.match(/\b\w+\b/g);
+const wordss = str.match(/\b\w+\b/g);
 
-// console.log(words); // ["Hello", "world", "How", "are", "you"]
+console.log(wordss); // ["Hello", "world", "How", "are", "you"]
 
 
 // let sentence = "яблуко увуву 4343 5656 2323 2323 2323 2323 груша яблуко слива яблуко груша";
@@ -214,7 +214,7 @@ function counterWords(sentence) {
 }
 
 let f = counterWords(sentence)
-console.log(words)
+console.log(f)
 
 //6. Розверни масив без reverse()
 
@@ -341,6 +341,33 @@ function throttle(fn, delay) {
   }    
 }
 
+
+// function throttle(fn, delay) {
+//   let timeoutId = null;
+
+//   return function(...args) {
+//     if (!timeoutId) {
+//       timeoutId = setTimeout(() => {
+//         fn.apply(this, args);
+//         timeoutId = null;
+//       }, delay);
+//     }
+//   };
+// }
+
+
+// function throttle(fn, delay) {
+//   let lastCall = 0;
+
+//   return function(...args) {
+//     const now = performance.now();
+//     if (now - lastCall >= delay) {
+//       lastCall = now;
+//       fn.apply(this, args);
+//     }
+//   };
+// }
+
 const log = () => console.log('Scrolled');
 
 window.addEventListener('scroll', throttle(log, 1000));
@@ -427,26 +454,72 @@ document.getElementById('plus').addEventListener('click', () =>{
 const users = [
   { name: 'Katya', age: 25 },
   { name: 'Bohdan', age: 30 },
-  { name: 'Anna', age: 20 }
+  { name: 'Anna', age: 20 },
+  { name: 'Pon', age: 35 },
+  { name: 'Don', age: 260 }
 ];
 // ascending - зростання, descending - спадання
 function sortByField(arr, field, order = 'asc') {
   return arr.sort((a, b) => {
 
     if (typeof a[field] === 'string' && typeof b[field] === 'string') {
-      return order === 'ascending' 
+      return order === 'asc' 
         ? a[field].localeCompare(b[field]) 
         : b[field].localeCompare(a[field]);
     }
-    return order === 'ascending' 
+    return order === 'asc' 
       ? a[field] - b[field] 
       : b[field]- a[field];  
   });
 }
 
-const www = sortByField(users, 'name', 'ascending')
+const www = sortByField(users, 'name', 'asc')
 
 console.log(www)
+//////////////////////////////
+
+const sortOrders = {
+  name: 'asc',
+  age: 'asc'
+};
+
+function sortRenderField(field) {
+  const order = sortOrders[field];
+  users.sort((a, b) => {
+
+    if (typeof a[field] === 'string' && typeof b[field] === 'string') {
+      return order === 'asc' 
+        ? a[field].localeCompare(b[field]) 
+        : b[field].localeCompare(a[field]);
+    }
+    return order === 'asc' 
+      ? a[field] - b[field] 
+      : b[field]- a[field];  
+  });
+
+  sortOrders[field] = order === 'asc' ? 'desc' : 'asc';
+
+  const container = document.getElementById('userList');
+  container.innerHTML = '';
+  for (const user of users) {
+    const div = document.createElement('div');
+    div.innerHTML = `<h2>${user.name}</h2><p>${user.age}</p>`
+    container.appendChild(div);
+  }
+}
+
+sortRenderField('name'); // або просто render без сортування
+
+// події на кнопки
+document.getElementById('sortByName').addEventListener('click', () => {
+  sortRenderField('name');
+});
+
+document.getElementById('sortByAge').addEventListener('click', () => {
+  sortRenderField('age');
+});
+
+///////////////////////
 
 // const field = ['age', 'name'];
 // const obj = { age: 25, name: 'Anna' };
@@ -456,3 +529,152 @@ console.log(www)
 //   console.log(key, obj[key]);
 // });  
 // console.log(obj.field);   
+
+
+///////////////////////////////////////
+
+
+//13.Знайди максимум і мінімум без Math.max
+
+
+function maxMin(arr) {
+  if (arr.length === 0) {
+    return null; 
+  }
+  let max = arr[0];
+  let min = arr[0];
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i] > max) {
+      max = arr[i];
+    }
+
+    if (arr[i] < min) {
+      min = arr[i];
+    }
+  }
+  let different = max - min;
+  return { different, max, min };
+}
+
+function findMaxMinRecursive(arr) {
+  if (arr.length === 1) {
+    return { max: arr[0], min: arr[0] }
+  }
+  let mid = Math.floor(arr.length / 2); 
+  let left = arr.slice(0, mid);
+  let right = arr.slice(mid);
+
+  let leftResult = findMaxMinRecursive(left);
+  let rightResult = findMaxMinRecursive(right);
+
+  let max
+  if (leftResult.max > rightResult.max) {
+    max = leftResult.max;
+  } else {
+    max = rightResult.max;
+  }
+
+  let min 
+  if (leftResult.min < rightResult.min) {
+    min = leftResult.min;
+  } else {
+    min = rightResult.min;
+  }
+  //  max = (leftResult.max > rightResult.max) ? leftResult.max : rightResult.max
+  //  min = (leftResult.min < rightResult.min) ? leftResult.min : rightResult.min
+  different = max - min;
+  return { max, min, different }
+}
+
+function findMaxMinReduce(arr) {
+  if (arr.length === 0) {
+    return null;
+  }
+  let result = arr.reduce((acc, val) => {
+    if (val > acc.max) acc.max = val;
+    if (val < acc.min) acc.min = val;
+    return acc;
+  }, {max: arr[0], min: arr[0] });
+  return result;
+}
+
+console.log(findMaxMinRecursive([3, 7, -2, 0, 9]));
+
+//14.Реалізуй compose() або pipe() функції
+
+
+function compose(...fns) {
+  return function (x) {
+    return fns.reduceRight((acc, fn) => fn(acc), x);
+  };
+}
+
+const addOne = x => x + 1;
+const triple = x => x * 3;
+
+// const doStuff = compose(addOne, triple);
+
+// console.log(doStuff(4))
+
+
+function pipe(...fns) {
+  return function (x) {
+    return fns.reduce((acc, fn) => fn(acc), x);
+  };
+}
+
+// const doPipeStuff = pipe(addOne, triple);
+
+// console.log(doPipeStuff(4))
+////////////////////////
+
+function composeCycle (...fns) {
+  return function(x) {
+    let result = x;
+    for (let i = fns.lengs - 1; i > 0; i--) {
+      result = fns[i](result);
+    }
+    return result;
+  }
+}
+
+function PipeCycle (...fns) {
+  return function(x) {
+    let result = x;
+    for (let i = 0; i < fns.length; i++) {
+      result = fns[i](result);
+    }
+    return result;
+  }
+}
+
+////////////////////////////////
+
+function composeRecurcive (...fns) {
+  return function(x) {
+    if (fns.length === 0) {
+      return x;
+    }
+    const lastFn = fns[fns.length - 1];
+    const restFns = fns.slice(0, fns.length - 1);
+    return composeRecurcive(...restFns)(lastFn(x));
+  }
+}
+const doComposeStuffRecurcive = composeRecurcive(addOne, triple);
+
+console.log(doComposeStuffRecurcive(4));
+
+function PipeRecurcive (...fns) {
+  return function(x) {
+    if (fns.length === 0) {
+      return x;
+    }
+    const firstFn = fns[0];
+    const restFns = fns.slice(1);
+    return PipeRecurcive(...restFns)(firstFn(x));
+  }
+}
+
+const doPipeStuffRecurcive = PipeRecurcive(addOne, triple);
+
+console.log(doPipeStuffRecurcive(4));
