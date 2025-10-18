@@ -678,3 +678,249 @@ function PipeRecurcive (...fns) {
 const doPipeStuffRecurcive = PipeRecurcive(addOne, triple);
 
 console.log(doPipeStuffRecurcive(4));
+
+///////////////////////////////////////////////
+
+
+//15.Створи функцію, яка кешує результати виклику
+
+// function memorized(fn) {
+//   const cacheStorage = {};
+//   return function (...args) {
+//     const key = JSON.stringify(args);
+//     if (cacheStorage.hasOwnProperty(key)) {
+//       return {
+//         result: cacheStorage[key],
+//         fromCache: true
+//       }
+
+//     };
+//     const result = fn(...args);
+//     cacheStorage[key] = result;
+//     return {
+//       result: result,
+//       fromCache: false
+//   }
+//   };
+// }
+function memorized(fn) {
+  const cache = new Map();
+
+  return function (...args) {
+    const key = JSON.stringify(args);
+    const start = performance.now(); 
+    if (cache.has(key)) {
+
+      const end = performance.now()
+      console.log(`З кешу (${key}): ${end - start} мс`);
+      return cache.get(key);
+    }
+
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    const end = performance.now();
+    console.log(`Не з кешу (${key}): ${end - start} мс`);
+    return result;
+  };
+}
+function slowFib(n) {   //Числа Фібоначчі — це послідовність чисел, 
+// де кожне наступне число є сумою двох попередніх:
+  if (n <= 1) return n;
+  return slowFib(n - 1) + slowFib(n - 2);
+}
+const cachedFib = memorized(slowFib);
+
+// cachedFib(35); // ще повільно
+
+// cachedFib(35); // миттєво!
+
+//16.Створи таймер з setInterval і кнопкою “Stop”
+window.addEventListener('DOMContentLoaded', function () {
+  const toggleBtn = document.getElementById('toggleButton');
+
+  let counterPerSec = 0;
+
+  function incrementPerSec() {
+    counterPerSec++;
+    document.getElementById('timer').textContent = counterPerSec;
+  }
+
+  let intervalPerSec = setInterval(incrementPerSec, 1000);
+
+
+  document.getElementById('stopButton').addEventListener('click', function() {
+    clearInterval(intervalPerSec);
+    intervalPerSec = null;
+    toggleBtn.textContent = 'Continue';
+  });
+  document.getElementById('startButton').addEventListener('click', function() {
+    if (intervalPerSec === null) {
+      intervalPerSec = setInterval(incrementPerSec, 1000);
+      toggleBtn.textContent = 'Pause';
+    }
+  });
+  document.getElementById('clearButton').addEventListener('click', function() {
+    counterPerSec = 0;
+    document.getElementById('timer').textContent = counterPerSec;
+    clearInterval(intervalPerSec);
+    intervalPerSec = null;
+  });
+
+  document.getElementById('toggleButton').addEventListener('click', function() {
+    if (intervalPerSec !==null) {
+      clearInterval(intervalPerSec);
+      intervalPerSec = null;
+      toggleBtn.textContent = 'Continue';
+    } else {
+      intervalPerSec = setInterval(incrementPerSec, 1000);
+      toggleBtn.textContent = 'Pause';
+    }
+  })
+});
+
+
+//17.Симулюй Promise вручну (реалізуй MyPromise)
+
+// function fetchData() {
+//   return new Promise((resolve, reject) => {
+//     setTimeout(() => resolve("Дані отримано!"), 1000);
+//   });
+// }
+
+// fetchData()
+//   .then(result => console.log(result))
+//   .catch(error => console.error(error));
+
+
+class MyPromise {
+  constructor(executor) {
+    this.state = 'pending';
+    this.value = undefined;
+    this.handlers = [];
+    const resolve = this.resolve.bind(this);
+    const reject = this.reject.bind(this);
+
+    try {
+      executor(resolve, reject);
+    } catch (err) {
+      reject(err);
+    }
+  }
+  resolve(val) {
+    if (this.state !== 'pending') return;
+    this.state = 'fulfilled';
+    this.value = val;
+    this.handlers.forEach(handler => {
+      setTimeout(() => {
+        handler.onFulfilled(val);
+      }, 0);
+    });
+  }
+  then(onFulfilled, onRejected) {
+    if (this.state === 'fulfilled') {
+      setTimeout(() => onFulfilled?.(this.value), 0);
+    } else if (this.state === 'rejected') {
+      setTimeout(() => onRejected?.(this.value), 0);
+    } else {
+      this.handlers.push({ onFulfilled, onRejected });
+    }
+    return this;
+  }
+  catch(onRejected) {
+    return this.then(null, onRejected);
+  }
+  reject(reason) {
+    if (this.state !== 'pending') return;
+    this.state = 'rejected';
+    this.value = reason;
+      
+    this.handlers.forEach(handler => {
+      setTimeout(() => {
+        if (handler.onRejected) {
+          handler.onRejected(reason);
+        }
+      }, 0);
+    });
+  } 
+}
+const p = new MyPromise((resolve, reject) => {
+  setTimeout(() => reject('Помилка!'), 100);
+});
+
+p.then(val => {
+  console.log('Успіх:', val);
+}).catch(err => {
+  console.log('Провал:', err);
+});
+///////////////////////////////////////////////////
+function MyPromised(executor) {
+  let state = 'pending';
+  let value;
+  let reason;
+  let onFulfilled;
+  let onRejected;
+
+  function resolve(val) {
+    if (state === 'pending') {
+      state = 'fulfilled';
+      value = val;
+      if (onFulfilled) setTimeout(() => onFulfilled(value), 0);
+    }
+  }
+
+  function reject(err) {
+    if (state === 'pending') {
+      state = 'rejected';
+      reason = err;
+      if (onRejected) setTimeout(() => onRejected(reason), 0);
+    } 
+  }
+
+  try {
+    executor(resolve, reject);
+  } catch (e) {
+    reject(e);
+  }
+  return {
+    then(onFulfilledCallback) {
+      return MyPromised((resolve, reject) => {
+        onFulfilled = (value) => {
+          try {
+            const result = onFulfilledCallback(value);
+            resolve(result);
+          } catch (err) {
+            reject (err);
+          }
+        };
+        if (state === 'fulfilled') {
+          setTimeout(() => onFulfilled(value), 0);
+        }
+      })
+    },
+    catch(fn) {
+      onRejected = fn;
+      if (state === 'rejected') setTimeout(() => onRejected(reason), 0);
+      return this;
+    }
+  }
+}
+
+// console.log("1");
+// MyPromise((res) => res("ok")).then(val => console.log("2"));
+// console.log("3");
+
+MyPromised(resolve => resolve(5))
+  .then(x => x + 1)
+  .then(x => console.log("✅", x));
+
+
+  MyPromised((resolve) => {
+  resolve(10);
+})
+  .then(x => x + 5)
+  .then(x => console.log('Результат:', x)); // Має вивести 15
+//18.Напиши функцію для форматування дати
+
+// 19.Витягни унікальні значення з масиву об’єктів
+
+//20. Зроби просту реалізацію подієвого емітера
