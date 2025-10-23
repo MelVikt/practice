@@ -35,7 +35,7 @@ function stringCountVowels(str) {
   return count;
 }
 
-console.log(stringCountVowels("Привіт, як справи?"));
+console.log(RegExCountVowels("Привіт, як справи?"));
 
 //2.1.Порахуй кількість приголосних у рядку
 
@@ -45,20 +45,25 @@ const RegExCountConsonants = str =>
 
 function stringCountConsonants(str) {
   const vowels = 'aeiouаеєиіїоуюя'; 
+  const consonantsArray = [];
   let count = 0;
   for (let letter of str.toLowerCase()) {
     if (/[a-zа-яёіїєґ]/i.test(letter)&& !vowels.includes(letter)){
       //Метод регулярного виразу, який перевіряє: 
       // чи відповідає символ letter регулярному виразу.
       count++;
+      consonantsArray.push(letter);
     }
   }
-  return count;
+  return {
+    count: count,
+    consonants: consonantsArray
+  };
 }
 function reduceCountConsonants (str) {
   const consonants = "бвгґджзйклмнпрстфхцчшщbcdfghjklmnpqrstvwxyz";
   return [...str.toLowerCase()].reduce((acc, letter) =>   //spread [...]
-  consonants.includes(letter) ? acc+ 1 : acc, 0);
+  consonants.includes(letter) ? acc + 1 : acc, 0);
 }
 
 function reduceCountConsonantsByVowels (str) {
@@ -72,7 +77,7 @@ function reduceCountConsonantsByVowels (str) {
   }   
 
 
-console.log(reduceCountConsonantsByVowels("Привіт, як справи?"));
+console.log(stringCountConsonants("Привіт, як справи?"));
 
 //3. Перевір, чи є рядок паліндромом
 
@@ -156,15 +161,15 @@ const wordss = str.match(/\b\w+\b/g);
 console.log(wordss); // ["Hello", "world", "How", "are", "you"]
 
 
-// let sentence = "яблуко увуву 4343 5656 2323 2323 2323 2323 груша яблуко слива яблуко груша";
+let sentences = "яблуко увуву 4343 5656 2323 2323 2323 2323 груша яблуко слива яблуко груша";
 // console.log(sentence.split(' '));  ['яблуко', 'груша', 'яблуко', 'слива', 'яблуко', 'груша'] розбиває рядок по кожному пробілу.
 // console.log(sentence.split()) ['яблуко груша яблуко слива яблуко груша'] Тут .split() не знає, де саме розділяти, тому повертає весь рядок як один елемент масиву:
 
 // console.log("слива груша яблуко".split(' '))
 
-// let words = sentence.split(" ");
+// let wordsa = sentences.split(" ");
 // let counts = {};
-// for (let word of words) {
+// for (let word of wordsa) {
 //   if (!counts[word]) {
 //     counts[word] = 1;
 //   } else {
@@ -172,10 +177,49 @@ console.log(wordss); // ["Hello", "world", "How", "are", "you"]
 //   }
 // }
 
-// console.log(counts)
+function getMostFrequentWord(sentence) {
+  const words = sentence.split(" ");
+  const counts = {};   // const counts = new Map();
+
+  for (let word of words) {
+    counts[word] = (counts[word] || 0) + 1;
+  }
+
+  // let maxWord = null;
+  // let maxCount = 0;
+
+  // for (let word in counts) {
+  //   if (counts[word] > maxCount) {
+  //     maxCount = counts[word];
+  //     maxWord = word;
+  //   }
+  // }
+//   for (let [word, count] of Object.entries(counts)) {
+//   if (count > maxCount) {
+//     maxCount = count;
+//     maxWord = word;
+//   }
+// }
+//////////////////////////////////////////////////////////////////////////////////////// без let
+  let [maxWord, maxCount] = Object.entries(counts).reduce(
+    ([maxW, maxC], [word, count]) => count > maxC ? [word, count] : [maxW, maxC],
+    [null, 0]
+  );
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+// counts.forEach((count, word) => {   ////new Map()
+//   if (count > maxCount) {
+//     maxCount = count;
+//     maxWord = word;
+//   }
+// });
+//////////////////////////////////////////////////
+  return { word: maxWord, count: maxCount };
+}
+console.log(getMostFrequentWord(sentences))
 
 let sentence = "яблуко увуву 4343 5656 2323 2323 2323 2323 груша яблуко слива яблуко груша";
 let words = sentence.split(" ");
+
 function counterWords(sentence) {
   let words = sentence.split(" ");
   let counts = {};
